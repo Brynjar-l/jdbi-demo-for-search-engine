@@ -1,17 +1,18 @@
 package iceland.hi.throunhugbo;
 
 import org.jdbi.v3.core.Jdbi;
-
-import javax.sql.DataSource;
-import java.sql.*;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
+
+        // path to database, alongside driver and dialect.
         final String url = "jdbc:sqlite:hotels.sqlite";
+        // jdbi init
         Jdbi jdbi = Jdbi.create(url);
 
+        // [showcase] create database if it doesn't exist already. Maybe add a list to populate it on first run?
         jdbi.useHandle(handle -> {
            handle.execute("""
                    CREATE TABLE IF NOT EXISTS hotels (
@@ -36,39 +37,25 @@ public class Main {
                    """);
         });
 
-        System.out.println("Database prolly Created!");
-
-
-
+        // [showcase] exception handling
         try {
-            jdbi.useHandle(handle -> {
-                handle.createUpdate("INSERT INTO hotels (id, name, address, city, star_rating) VALUES(:id, :name, :address, :city, :star_rating)")
-                        .bind("id", 1)
-                        .bind("name", "Demo_Hotel")
-                        .bind("address", "StreetOfStress")
-                        .bind("city", "Reykjavik")
-                        .bind("star_rating", 5)
-                        .execute();
-            });
+            jdbi.useHandle(handle -> handle.createUpdate("INSERT INTO hotels (id, name, address, city, star_rating) VALUES(:id, :name, :address, :city, :star_rating)")
+                    .bind("id", 1)
+                    .bind("name", "Demo_Hotel")
+                    .bind("address", "StreetOfStress")
+                    .bind("city", "Reykjavik")
+                    .bind("star_rating", 5)
+                    .execute());
         } catch (Exception _) {
             System.out.println("This ID might already exist in the database!");
         }
-        System.out.println("");
-        System.out.println("");
 
+        // [showcase] query showcase
         List<Map<String, Object>> users =
-                jdbi.withHandle(handle -> {
-                    return handle.createQuery("SELECT * FROM hotels")
-                            .mapToMap()
-                            .list();
-                });
+                jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM hotels")
+                        .mapToMap()
+                        .list());
 
         System.out.println("[QUERY] -> " + users);
-
-
-
-
-
-
     }
 }
