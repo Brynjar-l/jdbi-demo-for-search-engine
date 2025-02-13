@@ -7,3 +7,6 @@
 - Create the final, exposed methods for querying (and writing)
 
 // decide on a method for constructing statements one by one, i.e. writing input + selecting filter + another filter + changing written input. etc.
+
+
+>>> SQLite supports special syntax like INSERT OR IGNORE or INSERT OR REPLACE. With these

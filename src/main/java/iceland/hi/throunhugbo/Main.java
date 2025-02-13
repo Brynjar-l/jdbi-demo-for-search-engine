@@ -1,21 +1,43 @@
 
+import iceland.hi.throunhugbo.data.Hotel;
 import iceland.hi.throunhugbo.data.HotelDao;
+import iceland.hi.throunhugbo.data.HotelMapper;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import java.util.List;
 import java.util.Map;
-
 import org.jdbi.v3.sqlobject.*;
+import org.jetbrains.annotations.NotNull;
+
+
+private static final String URL = "jdbc:sqlite:hotels.sqlite";
+
 
 public static void main() {
-    final String url = "jdbc:sqlite:hotels.sqlite";
 
-    Jdbi jdbi = Jdbi.create(url);
+    // init fyrir jdbi
+    final Jdbi jdbi = Jdbi.create(URL);
     jdbi.installPlugin(new SqlObjectPlugin());
-
+    jdbi.registerRowMapper(new HotelMapper());
+    // Dao
     HotelDao hotelDao = jdbi.onDemand(HotelDao.class);
 
-    // [showcase] create database if it doesn't exist already. Maybe add a list to populate it on first run?
+
+    List<Map<String, Object>> users =
+            jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM hotels")
+                    .mapToMap()
+                    .list());
+
+
+
+}
+
+
+/**
+ *
+ * @param jdbi insert the active
+ */
+private void initDatabase(@NotNull Jdbi jdbi) {
     jdbi.useHandle(handle -> {
         handle.execute("""
                 CREATE TABLE IF NOT EXISTS hotels (
@@ -39,39 +61,5 @@ public static void main() {
                 )
                 """);
     });
-
-
-    try {
-        hotelDao.insertHotel("withoutIdThisTime", "Sæmundargata 2", "Reykjavik", 4.4);
-    } catch (Exception _) {}
-
-
-
-
-
-    // [showcase] query showcase
-    List<Map<String, Object>> users =
-            jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM hotels")
-                    .mapToMap()
-                    .list());
-
-    System.out.println("[QUERY] -> " + users);
 }
 
-
-
-static void insertHotel(Jdbi jdbi, int id, String name, String address, String city, double star_rating) {
-    try {
-        jdbi.useHandle(handle -> handle.createUpdate("INSERT INTO hotels (id, name, address, city, star_rating) VALUES(:id, :name, :address, :city, :star_rating)")
-                .bind("id", id)
-                .bind("name", name)
-                .bind("address", address)
-                .bind("city", city)
-                .bind("star_rating", star_rating)
-                .execute());
-
-        System.out.println("id [" + id +"] was added");
-    } catch (Exception _) {
-        System.out.println("ID ALREADY EXISTS, CONTINUING");
-    }
-}

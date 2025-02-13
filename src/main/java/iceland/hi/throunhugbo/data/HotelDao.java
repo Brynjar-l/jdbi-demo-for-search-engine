@@ -28,4 +28,8 @@ public interface HotelDao extends SqlObject {
 
 
 
+
+
+
+
 }
