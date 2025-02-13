@@ -1,10 +1,22 @@
 package iceland.hi.throunhugbo.data;
 
+import iceland.hi.throunhugbo.model.Hotel;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+/*
+ * Dæma notkun:
+ *
+ * List<Hotel> hotels = jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM hotels")
+                .map(new HotelMapper())
+                .list()
+    );
+ *
+ *
+ */
+
 
 /**
  *  Umbreytir skil frá Queries yfir í klasa með öllum gögnum.

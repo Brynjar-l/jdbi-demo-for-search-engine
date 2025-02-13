@@ -1,16 +1,15 @@
 
-import iceland.hi.throunhugbo.data.Hotel;
+import iceland.hi.throunhugbo.model.Hotel;
 import iceland.hi.throunhugbo.data.HotelDao;
 import iceland.hi.throunhugbo.data.HotelMapper;
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import java.util.List;
-import java.util.Map;
+
 import org.jdbi.v3.sqlobject.*;
 import org.jetbrains.annotations.NotNull;
 
 
-private static final String URL = "jdbc:sqlite:hotels.sqlite";
+private static final String URL = "jdbc:sqlite:src/main/resources/database/hotels.sqlite";
 
 
 public static void main() {
@@ -18,23 +17,22 @@ public static void main() {
     // init fyrir jdbi
     final Jdbi jdbi = Jdbi.create(URL);
     jdbi.installPlugin(new SqlObjectPlugin());
-    jdbi.registerRowMapper(new HotelMapper());
     // Dao
     HotelDao hotelDao = jdbi.onDemand(HotelDao.class);
 
 
-    List<Map<String, Object>> users =
-            jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM hotels")
-                    .mapToMap()
-                    .list());
+    List<Hotel> hotels = jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM hotels")
+                .map(new HotelMapper())
+                .list()
+    );
 
-
-
+    for (Hotel hotel : hotels) {
+        System.out.println(hotel.toString());
+        System.out.print("\n");
+    }
 }
 
-
 /**
- *
  * @param jdbi insert the active
  */
 private void initDatabase(@NotNull Jdbi jdbi) {

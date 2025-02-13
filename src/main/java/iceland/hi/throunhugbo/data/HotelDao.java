@@ -17,11 +17,18 @@ public interface HotelDao extends SqlObject {
                         VALUES (:name, :address, :city, :star_rating)
             
             """)
-    void insertHotel(
+    void insertHotel (
             @Bind("name") String name,
             @Bind("address") String address,
             @Bind("city") String city,
             @Bind("star_rating") double starRating
+    );
+
+    @SqlUpdate("""
+            
+            """)
+    void updateHotel (
+
     );
 
 

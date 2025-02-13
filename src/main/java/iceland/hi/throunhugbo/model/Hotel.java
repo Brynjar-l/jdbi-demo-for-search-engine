@@ -1,4 +1,4 @@
-package iceland.hi.throunhugbo.data;
+package iceland.hi.throunhugbo.model;
 
 public class Hotel {
     private int id;
@@ -7,7 +7,13 @@ public class Hotel {
     private String city;
     private double starRating;
 
-    public Hotel(int id, String name, String address, String city, double starRating) {}
+    public Hotel(int id, String name, String address, String city, double starRating) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.city = city;
+        this.starRating = starRating;
+    }
 
     public int getId() {
         return id;
@@ -47,5 +53,10 @@ public class Hotel {
 
     public void setStarRating(double starRating) {
         this.starRating = starRating;
+    }
+
+    @Override
+    public String toString() {
+        return id + ", " + name + ", " + address + ", " + city + ", " + starRating;
     }
 }
