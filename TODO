@@ -1,0 +1,9 @@
+- Flesh out required database schema
+
+- Implement object mapper to Dao
+- Create object class to map to     // if that is the format we want for the returned dataset
+- finish Dao methods
+
+- Create the final, exposed methods for querying (and writing)
+
+// decide on a method for constructing statements one by one, i.e. writing input + selecting filter + another filter + changing written input. etc.

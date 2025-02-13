@@ -1,61 +1,77 @@
-package iceland.hi.throunhugbo;
 
+import iceland.hi.throunhugbo.data.HotelDao;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import java.util.List;
 import java.util.Map;
 
-public class Main {
-    public static void main(String[] args) {
+import org.jdbi.v3.sqlobject.*;
 
-        // path to database, alongside driver and dialect.
-        final String url = "jdbc:sqlite:hotels.sqlite";
-        // jdbi init
-        Jdbi jdbi = Jdbi.create(url);
+public static void main() {
+    final String url = "jdbc:sqlite:hotels.sqlite";
 
-        // [showcase] create database if it doesn't exist already. Maybe add a list to populate it on first run?
-        jdbi.useHandle(handle -> {
-           handle.execute("""
-                   CREATE TABLE IF NOT EXISTS hotels (
-                       id INTEGER PRIMARY KEY AUTOINCREMENT,
-                       name TEXT NOT NULL,
-                       address TEXT NOT NULL,
-                       city TEXT,
-                       star_rating REAL
-                   )
-                   """);
+    Jdbi jdbi = Jdbi.create(url);
+    jdbi.installPlugin(new SqlObjectPlugin());
 
-           handle.execute("""
-                   CREATE TABLE IF NOT EXISTS rooms (
-                       id INTEGER PRIMARY KEY AUTOINCREMENT,
-                       hotel_id INTEGER NOT NULL,
-                       room_number TEXT,
-                       room_type TEXT,
-                       price_per_night INTEGER NOT NULL,
-                       is_booked BOOLEAN NOT NULL DEFAULT 0,
-                       FOREIGN KEY (hotel_id) REFERENCES hotels(id)
-                   )
-                   """);
-        });
+    HotelDao hotelDao = jdbi.onDemand(HotelDao.class);
 
-        // [showcase] exception handling
-        try {
-            jdbi.useHandle(handle -> handle.createUpdate("INSERT INTO hotels (id, name, address, city, star_rating) VALUES(:id, :name, :address, :city, :star_rating)")
-                    .bind("id", 1)
-                    .bind("name", "Demo_Hotel")
-                    .bind("address", "StreetOfStress")
-                    .bind("city", "Reykjavik")
-                    .bind("star_rating", 5)
-                    .execute());
-        } catch (Exception _) {
-            System.out.println("This ID might already exist in the database!");
-        }
+    // [showcase] create database if it doesn't exist already. Maybe add a list to populate it on first run?
+    jdbi.useHandle(handle -> {
+        handle.execute("""
+                CREATE TABLE IF NOT EXISTS hotels (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    address TEXT NOT NULL,
+                    city TEXT,
+                    star_rating REAL
+                )
+                """);
 
-        // [showcase] query showcase
-        List<Map<String, Object>> users =
-                jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM hotels")
-                        .mapToMap()
-                        .list());
+        handle.execute("""
+                CREATE TABLE IF NOT EXISTS rooms (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    hotel_id INTEGER NOT NULL,
+                    room_number TEXT,
+                    room_type TEXT,
+                    price_per_night INTEGER NOT NULL,
+                    is_booked BOOLEAN NOT NULL DEFAULT 0,
+                    FOREIGN KEY (hotel_id) REFERENCES hotels(id)
+                )
+                """);
+    });
 
-        System.out.println("[QUERY] -> " + users);
+
+    try {
+        hotelDao.insertHotel("withoutIdThisTime", "Sæmundargata 2", "Reykjavik", 4.4);
+    } catch (Exception _) {}
+
+
+
+
+
+    // [showcase] query showcase
+    List<Map<String, Object>> users =
+            jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM hotels")
+                    .mapToMap()
+                    .list());
+
+    System.out.println("[QUERY] -> " + users);
+}
+
+
+
+static void insertHotel(Jdbi jdbi, int id, String name, String address, String city, double star_rating) {
+    try {
+        jdbi.useHandle(handle -> handle.createUpdate("INSERT INTO hotels (id, name, address, city, star_rating) VALUES(:id, :name, :address, :city, :star_rating)")
+                .bind("id", id)
+                .bind("name", name)
+                .bind("address", address)
+                .bind("city", city)
+                .bind("star_rating", star_rating)
+                .execute());
+
+        System.out.println("id [" + id +"] was added");
+    } catch (Exception _) {
+        System.out.println("ID ALREADY EXISTS, CONTINUING");
     }
 }
