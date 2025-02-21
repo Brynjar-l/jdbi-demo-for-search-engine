@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class HotelService {
     final Jdbi jdbi = JdbiManager.getInstance();
-    HotelDao hotelDao = jdbi.onDemand(HotelDao.class);
+    final HotelDao hotelDao = jdbi.onDemand(HotelDao.class);
 
     public HotelService() {}
 
